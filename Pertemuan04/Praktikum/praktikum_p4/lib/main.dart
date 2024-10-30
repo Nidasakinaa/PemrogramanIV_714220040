@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:praktikum_p3/material_app.dart';
+import 'package:praktikum_p4/material_app.dart';
+
 void main() {
-  runApp(AppMaterial());
+  runApp(const AppMaterial());
 }
 
 class MainApp extends StatelessWidget {
