@@ -1,0 +1,23 @@
+name: ats
+description: "A new Flutter project."
+publish_to: 'none'
+version: 0.1.0
+
+environment:
+  sdk: ^3.5.3
+
+dependencies:
+  file_picker: ^8.1.4
+  flutter:
+    sdk: flutter
+  flutter_colorpicker: ^1.1.0
+  intl: ^0.20.1
+  open_file: ^3.5.10
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^4.0.0
+
+flutter:
+  uses-material-design: true
