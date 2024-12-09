@@ -1,5 +1,5 @@
-import 'package:ats/bottom_navbar.dart';
 import 'package:flutter/material.dart';
+import 'package:ats1/bottom_navbar.dart';
 import 'package:flutter/material.dart';
 
 void main() {
@@ -29,10 +29,7 @@ class MyInput extends StatefulWidget {
 }
 
 class _MyInputState extends State<MyInput> {
-  TextEditingController _controller = TextEditingController();
-  bool lightOn = false;
-  String? language;
-  bool agree = false;
+  final TextEditingController _controller = TextEditingController();
 
   @override
   Widget build(BuildContext context) {
@@ -54,14 +51,15 @@ class _MyInputState extends State<MyInput> {
             const SizedBox(height: 20),
             ElevatedButton(
               child: const Text('Submit'),
-              onPressed: (){
+              onPressed: () {
                 showDialog(
                   context: context,
                   builder: (context) {
                     return AlertDialog(
                       content: Text('Hello, ${_controller.text}'),
                     );
-                  });
+                  },
+                );
               },
             ),
           ],
@@ -71,18 +69,9 @@ class _MyInputState extends State<MyInput> {
   }
 
   @override
-  void showSnackBar() {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text('$language selected'),
-        duration: Duration(seconds: 1),
-      ),
-    );
-  }
-
-  @override
-  void_dispose() {
-    _controller.dispose();
+  void dispose() {
+    _controller.dispose(); // Membersihkan controller untuk menghindari kebocoran memori
     super.dispose();
   }
 }
+

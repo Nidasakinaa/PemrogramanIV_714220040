@@ -4,6 +4,7 @@ import 'package:flutter_colorpicker/flutter_colorpicker.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:open_file/open_file.dart';
 import 'dart:io';
+import 'dart:typed_data';
 
 class AdvancedForm extends StatefulWidget {
   const AdvancedForm({super.key});
@@ -12,13 +13,13 @@ class AdvancedForm extends StatefulWidget {
   State<AdvancedForm> createState() => _AdvancedFormState();
 }
 
-class _AdvancedFormState extends State<AdvancedForm>{
-  DateTime selectedDate = DateTime.now();
-  final currentDate = DateTime.now();
+class _AdvancedFormState extends State<AdvancedForm> {
   DateTime _dueDate = DateTime.now();
-  Color _currentColor = Colors.blue;
+  final currentDate = DateTime.now();
+  Color _currentColor = Colors.orange;
   String? _dataFile;
-  File? _imageFile;
+  File? _imageFile; // File untuk menyimpan path gambar
+  Uint8List? _imageBytes; // Byte untuk menyimpan gambar dalam memory
 
   @override
   Widget build(BuildContext context) {
@@ -45,31 +46,31 @@ class _AdvancedFormState extends State<AdvancedForm>{
   Widget buildDatePicker(BuildContext context) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              const Text('Date'),
-              TextButton(
-                child: const Text('Select'),
-                onPressed: () async{
-                  final selectDate = await showDatePicker(
-                    context: context,
-                    initialDate: currentDate,
-                    firstDate: DateTime(1990),
-                    lastDate: DateTime(currentDate.year + 5),
-                  );
+      children: [
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            const Text('Date'),
+            TextButton(
+              child: const Text('Select'),
+              onPressed: () async {
+                final selectedDate = await showDatePicker(
+                  context: context,
+                  initialDate: currentDate,
+                  firstDate: DateTime(1990),
+                  lastDate: DateTime(currentDate.year + 5),
+                );
+                if (selectedDate != null) {
                   setState(() {
-                    if(selectDate != null){
-                      _dueDate = selectDate;
-                    }
+                    _dueDate = selectedDate;
                   });
-                },
-              ),
-            ],
-          ),
-          Text(DateFormat('dd-MM-yyyy').format(_dueDate))
-        ],        
+                }
+              },
+            ),
+          ],
+        ),
+        Text(DateFormat('dd MMMM yyyy').format(_dueDate)),
+      ],
     );
   }
 
@@ -92,8 +93,8 @@ class _AdvancedFormState extends State<AdvancedForm>{
             ),
             onPressed: () {
               showDialog(
-                context: context, 
-                builder: (context){
+                context: context,
+                builder: (context) {
                   return AlertDialog(
                     title: const Text('Pick your color'),
                     content: Column(
@@ -101,7 +102,7 @@ class _AdvancedFormState extends State<AdvancedForm>{
                       children: [
                         ColorPicker(
                           pickerColor: _currentColor,
-                          onColorChanged: (color){
+                          onColorChanged: (color) {
                             setState(() {
                               _currentColor = color;
                             });
@@ -111,41 +112,22 @@ class _AdvancedFormState extends State<AdvancedForm>{
                     ),
                     actions: [
                       TextButton(
-                        onPressed: (){
+                        onPressed: () {
                           Navigator.of(context).pop();
                         },
                         child: const Text('Save'),
                       ),
                     ],
                   );
-                });
+                },
+              );
             },
             child: const Text('Pick Color'),
           ),
-        )
+        ),
       ],
     );
   }
-
-  // Widget buildSimpleFilePicker(BuildContext context) {
-  //   return Column(
-  //     crossAxisAlignment: CrossAxisAlignment.start,
-  //     children: [
-  //       const Text('Pick File'),
-  //       const SizedBox(height: 10),
-  //       Center(
-  //         child: ElevatedButton(
-  //           onPressed: ()  {
-  //             _pickFile();
-  //           },
-  //           child: const Text('Pick and Open File'),
-  //         ),
-  //       ),
-  //       if (_dataFile != null) 
-  //         Text('File: $_dataFile'),
-  //     ],
-  //   );
-  // }
 
   Widget buildFilePicker(BuildContext context) {
     return Column(
@@ -155,48 +137,60 @@ class _AdvancedFormState extends State<AdvancedForm>{
         const SizedBox(height: 10),
         Center(
           child: ElevatedButton(
-            onPressed: ()  {
+            onPressed: () {
               _pickFile();
             },
             child: const Text('Pick and Open File'),
           ),
         ),
-        if (_dataFile != null) 
-          Text('File: $_dataFile'),
+        if (_dataFile != null) Text('File: $_dataFile'),
         const SizedBox(height: 10),
-        if (_imageFile != null) 
-          Image.file(_imageFile!, 
-          height: 200,
-          width: double.infinity,
-          fit: BoxFit.cover
-        ),
+        if (_imageFile != null)
+          Image.file(
+            _imageFile!,
+            height: 200,
+            width: double.infinity,
+            fit: BoxFit.cover,
+          ),
+        if (_imageBytes != null)
+          Image.memory(
+            _imageBytes!,
+            height: 200,
+            width: double.infinity,
+            fit: BoxFit.cover,
+          ),
       ],
     );
   }
 
   void _pickFile() async {
     final result = await FilePicker.platform.pickFiles();
-    if (result == null) return;
 
-    final file = result.files.first;
+    if (result != null) {
+      final file = result.files.first;
 
-    if (file.extension == 'jpg' || 
-        file.extension == 'png' || 
-        file.extension == 'jpeg') {
+      // Jika file adalah gambar, gunakan File atau byte
+      if (file.extension == 'jpg' || file.extension == 'png' || file.extension == 'jpeg') {
+        setState(() {
+          _imageFile = File(file.path!);
+          _imageBytes = file.bytes; // Untuk kompatibilitas
+        });
+      } else {
+        setState(() {
+          _imageFile = null;
+          _imageBytes = null;
+        });
+      }
+
       setState(() {
-        _imageFile = File(file.path!);
+        _dataFile = file.name;
       });
-    } 
 
-    setState(() {
-      _dataFile = file.name;
-    });
-
-    _openFile(file);
+      _openFile(file);
+    }
   }
 
   void _openFile(PlatformFile file) {
     OpenFile.open(file.path);
   }
 }
-

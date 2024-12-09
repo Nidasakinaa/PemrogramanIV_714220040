@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:ats/input_form.dart';
+import 'package:ats1/input_form.dart';
 import 'main.dart';
 
 class DynamicBottomNavbar extends StatefulWidget {
@@ -13,7 +13,7 @@ class _DynamicBottomNavbarState extends State<DynamicBottomNavbar> {
   int _currentPageIndex = 0;
 
   final List<Widget> _pages = <Widget>[
-    const MyInput(),
+    // const MyInput(),
     const MyInputForm(),
   ];
 
@@ -42,7 +42,7 @@ class _DynamicBottomNavbarState extends State<DynamicBottomNavbar> {
           ),
         ],
         backgroundColor: Colors.blueAccent,
-        selectedItemColor: Colors.black,
+        selectedItemColor: Colors.yellow,
         unselectedItemColor: Colors.white,
       ),
     );
