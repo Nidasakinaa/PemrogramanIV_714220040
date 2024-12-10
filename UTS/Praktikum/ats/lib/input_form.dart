@@ -1,8 +1,10 @@
 import 'dart:io';
-
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_colorpicker/flutter_colorpicker.dart';
+import 'package:file_picker/file_picker.dart';
+import 'package:intl/intl.dart';
+import 'dart:typed_data';
 import 'package:open_file/open_file.dart';
 
 class MyInputForm extends StatefulWidget {
@@ -19,197 +21,220 @@ class _MyInputFormState extends State<MyInputForm> {
   final TextEditingController _controllerPhone = TextEditingController();
   final TextEditingController _controllerDate = TextEditingController();
 
-  Color _currentColor = Colors.blue; // Default color
+  Color _currentColor = const Color.fromARGB(255, 136, 195, 243); // Default color
   Map<String, dynamic>? editedData;
   File? _imageFile;
-  String? _dataFile;
+  String? _dataFile; // Untuk menyimpan nama file
+  Uint8List? _imageBytes; // Untuk menyimpan byte dari gambar
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Form Input'),
+        title: const Text(
+          'Form Input',
+          style: TextStyle(
+            color: Colors.white, // Ubah warna teks menjadi putih
+          ),
+        ),
+        flexibleSpace: Container(
+          decoration: const BoxDecoration(
+            gradient: LinearGradient(
+              colors: [
+                Color.fromARGB(255, 111, 149, 219), 
+                Color.fromARGB(255, 88, 155, 210), 
+              ],
+              begin: Alignment.topCenter,
+              end: Alignment.bottomCenter,
+            ),
+          ),
+        ),
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Form(
           key: _formKey,
-          child: Column(
-            children: [
-              // Input Nama
-              Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: TextFormField(
-                  controller: _controllerNama,
-                  validator: _validateNama,
-                  decoration: const InputDecoration(
-                    hintText: 'Write your name here...',
-                    labelText: 'Name',
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.all(
-                        Radius.circular(10),
+          child: SingleChildScrollView(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // Input Nama
+                Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: TextFormField(
+                    controller: _controllerNama,
+                    validator: _validateNama,
+                    decoration: const InputDecoration(
+                      hintText: 'Write your name here...',
+                      labelText: 'Name',
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.all(
+                          Radius.circular(10),
+                        ),
                       ),
+                      fillColor: Color.fromARGB(255, 222, 254, 255),
+                      filled: true,
                     ),
-                    fillColor: Color.fromARGB(255, 222, 254, 255),
-                    filled: true,
                   ),
                 ),
-              ),
 
-              // Input Phone Number
-              Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: TextFormField(
-                  controller: _controllerPhone,
-                  keyboardType: TextInputType.phone,
-                  validator: _validatePhone,
-                  decoration: const InputDecoration(
-                    hintText: 'Enter your phone number...',
-                    labelText: 'Phone Number',
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.all(
-                        Radius.circular(10),
+                // Input Phone Number
+                Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: TextFormField(
+                    controller: _controllerPhone,
+                    keyboardType: TextInputType.phone,
+                    validator: _validatePhone,
+                    decoration: const InputDecoration(
+                      hintText: 'Enter your phone number...',
+                      labelText: 'Phone Number',
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.all(
+                          Radius.circular(10),
+                        ),
                       ),
+                      fillColor: Color.fromARGB(255, 255, 240, 220),
+                      filled: true,
                     ),
-                    fillColor: Color.fromARGB(255, 255, 240, 220),
-                    filled: true,
                   ),
                 ),
-              ),
 
-              Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: TextFormField(
-                  controller: _controllerDate,
-                  readOnly: true,
-                  onTap: () async {
-                    DateTime? pickedDate = await showDatePicker(
-                      context: context,
-                      initialDate: DateTime.now(),
-                      firstDate: DateTime(1990),
-                      lastDate: DateTime(2100),
-                    );
-                    if (pickedDate != null) {
-                      String formattedDate = "${pickedDate.toLocal()}".split(' ')[0];
-                      setState(() {
-                        _controllerDate.text = formattedDate;
-                      });
-                    }
-                  },
-                  validator: _validateDate, // Use the validation method here
-                  decoration: const InputDecoration(
-                    hintText: 'Select your date...',
-                    labelText: 'Date',
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.all(
-                        Radius.circular(10),
+                // Input Date
+                Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: TextFormField(
+                    controller: _controllerDate,
+                    readOnly: true,
+                    onTap: () async {
+                      DateTime? pickedDate = await showDatePicker(
+                        context: context,
+                        initialDate: DateTime.now(),
+                        firstDate: DateTime(1990),
+                        lastDate: DateTime(2100),
+                      );
+                      if (pickedDate != null) {
+                        String formattedDate =
+                            "${pickedDate.toLocal()}".split(' ')[0];
+                        setState(() {
+                          _controllerDate.text = formattedDate;
+                        });
+                      }
+                    },
+                    validator: _validateDate,
+                    decoration: const InputDecoration(
+                      hintText: 'Select your date...',
+                      labelText: 'Date',
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.all(
+                          Radius.circular(10),
+                        ),
                       ),
+                      fillColor: Color.fromARGB(255, 240, 255, 220),
+                      filled: true,
+                      suffixIcon:
+                          Icon(Icons.calendar_today, color: Colors.grey),
                     ),
-                    fillColor: Color.fromARGB(255, 240, 255, 220),
-                    filled: true,
-                    suffixIcon: Icon(Icons.calendar_today, color: Colors.grey),
                   ),
                 ),
-              ),
 
-              // Color Picker
-              buildColorPicker(context),
+                // Color Picker
+                buildColorPicker(context),
 
-              // File Picker
-              buildFilePicker(context),
+                // File Picker
+                buildFilePicker(context),
 
-              // Submit Button
-              ElevatedButton(
-                child: Text(editedData != null ? "Update" : "Submit"),
-                onPressed: () {
-                  if (_formKey.currentState!.validate()) {
-                    _addData();
-                  }
-                },
-              ),
-
-              // Display List Data
-              const SizedBox(height: 20),
-              const Text(
-                'List Contact',
-                style: TextStyle(
-                  fontSize: 24,
-                  fontWeight: FontWeight.bold,
+                // Submit Button
+                Align(
+                  alignment: Alignment.topCenter,
+                  child: ElevatedButton(
+                    child: Text(editedData != null ? "Update" : "Submit"),
+                    onPressed: () {
+                      if (_formKey.currentState!.validate()) {
+                        _addData();
+                      }
+                    },
+                  ),
                 ),
-              ),
-              Expanded(
-                child: ListView.builder(
-                  shrinkWrap: true,
-                  itemCount: _myDataList.length,
-                  itemBuilder: (context, index) {
-                    final data = _myDataList[index];
-                    return Card(
-                      margin: const EdgeInsets.symmetric(
-                          vertical: 8.0, horizontal: 4.0),
-                      child: ListTile(
-                        leading: CircleAvatar(
-                          backgroundColor: Colors.grey,
-                          child: Text(
-                            data['name']?[0]?.toUpperCase() ?? '',
+
+                const SizedBox(height: 20),
+
+                // Centered List Contact Title
+                const Center(
+                  child: Text(
+                    'List Contact',
+                    style: TextStyle(
+                      fontSize: 24,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ),
+
+                const SizedBox(height: 10),
+
+                // Display List Data
+                SizedBox(
+                  height: 200, // Tentukan ukuran maksimum list
+                  child: ListView.builder(
+                    itemCount: _myDataList.length,
+                    itemBuilder: (context, index) {
+                      final data = _myDataList[index];
+                      return Card(
+                        margin: const EdgeInsets.symmetric(vertical: 8.0),
+                        child: ListTile(
+                          leading: CircleAvatar(
+                            backgroundImage: data['imageBytes'] != null
+                                ? MemoryImage(data['imageBytes'])
+                                    as ImageProvider
+                                : const AssetImage('assets/default_avatar.png'),
+                          ),
+                          title: Text(
+                            data['name'],
                             style: const TextStyle(fontWeight: FontWeight.bold),
                           ),
-                        ),
-                        title: Text(data['name'] ?? ''),
-                        subtitle: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text('Phone: ${data['phone']}'),
-                            Text('Date: ${data['date']}'),
-                            Row(
-                              children: [
-                                const Text('Color: '),
-                                Container(
-                                  width: 20,
-                                  height: 20,
+                          subtitle: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text('Phone: ${data['phone']}'),
+                              Text('Date: ${data['date']}'),
+                              const SizedBox(height: 4),
+                              ClipRRect(
+                                borderRadius: BorderRadius.circular(8),
+                                child: LinearProgressIndicator(
+                                  value: 1.0,
                                   color: data['color'],
+                                  backgroundColor:
+                                      data['color'].withOpacity(0.3),
+                                  minHeight: 8,
                                 ),
-                              ],
-                            ),
-                            Row(
-                              children: [
-                                const Text('File: '),
-                                if (data['filePreview'] != null)
-                                  Image.file(
-                                    data['filePreview']!,
-                                    width: 50,
-                                    height: 50,
-                                    fit: BoxFit.cover,
-                                  )
-                                else
-                                  const Icon(Icons.insert_drive_file,
-                                      color: Colors.grey),
-                              ],
-                            ),
-                          ],
+                              ),
+                            ],
+                          ),
+                          trailing: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              IconButton(
+                                icon:
+                                    const Icon(Icons.edit, color: Colors.blue),
+                                onPressed: () {
+                                  _editData(data);
+                                },
+                              ),
+                              IconButton(
+                                icon:
+                                    const Icon(Icons.delete, color: Colors.red),
+                                onPressed: () {
+                                  _deleteData(data);
+                                },
+                              ),
+                            ],
+                          ),
                         ),
-                        trailing: Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            IconButton(
-                              onPressed: () {
-                                _editData(data);
-                              },
-                              icon: const Icon(Icons.edit),
-                            ),
-                            IconButton(
-                              onPressed: () {
-                                _deleteData(data);
-                              },
-                              icon: const Icon(Icons.delete),
-                            ),
-                          ],
-                        ),
-                      ),
-                    );
-                  },
+                      );
+                    },
+                  ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
         ),
       ),
@@ -230,44 +255,48 @@ class _MyInputFormState extends State<MyInputForm> {
         ),
         const SizedBox(height: 10),
         Center(
-          child: ElevatedButton(
-            style: ElevatedButton.styleFrom(
-              backgroundColor: _currentColor,
-            ),
-            onPressed: () {
-              showDialog(
-                context: context,
-                builder: (context) {
-                  return AlertDialog(
-                    title: const Text('Pick your color'),
-                    content: Column(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        ColorPicker(
-                          pickerColor: _currentColor,
-                          onColorChanged: (color) {
-                            setState(() {
-                              _currentColor = color;
-                            });
-                          },
-                        ),
-                      ],
-                    ),
-                    actions: [
-                      TextButton(
-                        onPressed: () {
-                          Navigator.of(context).pop();
+            child: ElevatedButton(
+          style: ElevatedButton.styleFrom(
+            backgroundColor: _currentColor,
+          ),
+          onPressed: () {
+            showDialog(
+              context: context,
+              builder: (context) {
+                return AlertDialog(
+                  title: const Text('Pick your color'),
+                  content: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      ColorPicker(
+                        pickerColor: _currentColor,
+                        onColorChanged: (color) {
+                          setState(() {
+                            _currentColor = color;
+                          });
                         },
-                        child: const Text('Save'),
                       ),
                     ],
-                  );
-                },
-              );
-            },
-            child: const Text('Pick Color'),
+                  ),
+                  actions: [
+                    TextButton(
+                      onPressed: () {
+                        Navigator.of(context).pop();
+                      },
+                      child: const Text('Save'),
+                    ),
+                  ],
+                );
+              },
+            );
+          },
+          child: const Text(
+            'Pick Color',
+            style: TextStyle(
+              color: Colors.white,
+            ),
           ),
-        )
+        ))
       ],
     );
   }
@@ -276,7 +305,7 @@ class _MyInputFormState extends State<MyInputForm> {
   Widget buildFilePicker(BuildContext context) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
-      children: <Widget> [
+      children: <Widget>[
         const Text('Pick File'),
         const SizedBox(height: 10),
         Center(
@@ -284,14 +313,16 @@ class _MyInputFormState extends State<MyInputForm> {
             onPressed: () {
               _pickFile();
             },
-            child: const Text('Pick and Open File'),
+            child: const Text(
+              'Pick and Open File',
+            ),
           ),
         ),
         if (_dataFile != null) Text('File: $_dataFile'),
         const SizedBox(height: 10),
         if (_imageFile != null)
-          Image.file(
-            _imageFile!,
+          Image.memory(
+            _imageBytes!,
             height: 200,
             width: double.infinity,
             fit: BoxFit.cover,
@@ -354,32 +385,19 @@ class _MyInputFormState extends State<MyInputForm> {
     return null;
   }
 
-  // File Picker Method
+  // Pick File Method
   void _pickFile() async {
-    try {
-      final result = await FilePicker.platform.pickFiles();
+    final result = await FilePicker.platform.pickFiles(
+      type: FileType.image, // Hanya pilih file gambar
+    );
 
-      if (result != null) {
-        final file = result.files.first;
+    if (result != null) {
+      final file = result.files.first;
 
-        if (file.extension == 'jpg' ||
-            file.extension == 'jpeg' ||
-            file.extension == 'png') {
-          setState(() {
-            _imageFile = File(file.path!);
-            _dataFile = file.name;
-          });
-        } else {
-          setState(() {
-            _imageFile = null;
-            _dataFile = file.name; // File bukan gambar
-          });
-        }
-
-        _openFile(file);
-      }
-    } catch (e) {
-      debugPrint('Error picking file: $e');
+      setState(() {
+        _imageBytes = file.bytes; // Simpan byte gambar
+        _dataFile = file.name; // Simpan nama file
+      });
     }
   }
 
@@ -388,9 +406,6 @@ class _MyInputFormState extends State<MyInputForm> {
     OpenFile.open(file.path);
   }
 
-  
-
-  // Add Data
   void _addData() {
     final data = {
       'name': _controllerNama.text,
@@ -398,8 +413,9 @@ class _MyInputFormState extends State<MyInputForm> {
       'date': _controllerDate.text,
       'color': _currentColor,
       'file': _dataFile,
-      'filePreview': _imageFile,
+      'imageBytes': _imageBytes, // Tambahkan byte gambar
     };
+
     setState(() {
       if (editedData != null) {
         editedData!['name'] = data['name'];
@@ -407,11 +423,13 @@ class _MyInputFormState extends State<MyInputForm> {
         editedData!['date'] = data['date'];
         editedData!['color'] = data['color'];
         editedData!['file'] = data['file'];
+        editedData!['imageBytes'] = data['imageBytes'];
         editedData = null;
       } else {
         _myDataList.add(data);
       }
     });
+
     _clearForm();
   }
 
@@ -432,39 +450,39 @@ class _MyInputFormState extends State<MyInputForm> {
       _controllerNama.text = data['name'];
       _controllerPhone.text = data['phone'];
       _controllerDate.text = data['date'];
-      _currentColor = Color(int.parse(data['color'].split('(0x')[1].split(')')[0],
-          radix: 16));
+      _currentColor = Color(
+          int.parse(data['color'].split('(0x')[1].split(')')[0], radix: 16));
       _dataFile = data['file'];
     });
   }
 
   // Delete Data
   void _deleteData(Map<String, dynamic> data) {
-  showDialog(
-    context: context,
-    builder: (context) {
-      return AlertDialog(
-        title: const Text('Delete Data'),
-        content: const Text('Apakah Anda yakin ingin menghapus data ini?'),
-        actions: [
-          TextButton(
-            onPressed: () {
-              Navigator.of(context).pop();
-            },
-            child: const Text('Batal'),
-          ),
-          TextButton(
-            onPressed: () {
-              setState(() {
-                _myDataList.remove(data);
-              });
-              Navigator.of(context).pop();
-            },
-            child: const Text('Hapus'),
-          ),
-        ],
-      );
-    },
-  );
-}
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: const Text('Delete Data'),
+          content: const Text('Apakah Anda yakin ingin menghapus data ini?'),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+              child: const Text('Batal'),
+            ),
+            TextButton(
+              onPressed: () {
+                setState(() {
+                  _myDataList.remove(data);
+                });
+                Navigator.of(context).pop();
+              },
+              child: const Text('Hapus'),
+            ),
+          ],
+        );
+      },
+    );
+  }
 }

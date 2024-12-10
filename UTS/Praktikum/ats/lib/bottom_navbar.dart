@@ -13,7 +13,7 @@ class _DynamicBottomNavbarState extends State<DynamicBottomNavbar> {
   int _currentPageIndex = 0;
 
   final List<Widget> _pages = <Widget>[
-    const MyInput(),
+    const LandingPage(),
     const MyInputForm(),
   ];
 
@@ -41,7 +41,7 @@ class _DynamicBottomNavbarState extends State<DynamicBottomNavbar> {
             label: 'Contact List',
           ),
         ],
-        backgroundColor: Colors.blueAccent,
+        backgroundColor: const Color.fromARGB(255, 123, 173, 230),
         selectedItemColor: Colors.black,
         unselectedItemColor: Colors.white,
       ),
