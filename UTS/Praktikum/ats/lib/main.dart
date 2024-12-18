@@ -36,7 +36,7 @@ class LandingPage extends StatelessWidget {
                   Color.fromARGB(255, 73, 163, 180),
                   Color.fromARGB(255, 92, 145, 208),
                 ],
-                begin: Alignment.topLeft,
+                begin: Alignment.topCenter,
                 end: Alignment.bottomRight,
               ),
             ),
@@ -49,64 +49,44 @@ class LandingPage extends StatelessWidget {
                 // Circular Profile Image
                 ClipOval(
                   child: Image.asset(
-                    'images/Jessy.jpeg',
+                    'images/Jessy.jpeg', // Ganti dengan path gambar profil Anda
                     height: 180,
                     width: 180,
                     fit: BoxFit.cover,
                   ),
                 ),
                 const SizedBox(height: 30),
+                // Nama
                 const Text(
-                  'Welcome to Contact List',
+                  'Nama: Nida Sakina Aulia',
                   style: TextStyle(
-                    fontSize: 26,
+                    fontSize: 24,
                     fontWeight: FontWeight.w800,
                     fontFamily: 'Roboto',
                     color: Colors.white,
                   ),
                 ),
                 const SizedBox(height: 15),
+                // NPM
                 const Text(
-                  'Your go-to app for managing contacts!',
-                  textAlign: TextAlign.center,
+                  'NPM: 714220040',
                   style: TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.w300,
-                    fontFamily: 'Montserrat',
-                    fontStyle: FontStyle.italic,
+                    fontSize: 20,
+                    fontWeight: FontWeight.w500,
+                    fontFamily: 'Roboto',
                     color: Colors.white70,
                   ),
                 ),
-                const SizedBox(height: 50),
-                // Customized Button
-                ElevatedButton(
-                  onPressed: () {
-                    Navigator.pushReplacement(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => const DynamicBottomNavbar(),
-                      ),
-                    );
-                  },
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color.fromARGB(255, 255, 255, 255),
-                    foregroundColor: const Color.fromARGB(255, 51, 116, 182),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(20),
-                    ),
-                    shadowColor: Colors.blueGrey,
-                    padding: const EdgeInsets.symmetric(
-                      vertical: 14,
-                      horizontal: 28,
-                    ),
-                  ),
-                  child: const Text(
-                    'Get Started',
-                    style: TextStyle(
-                      fontSize: 18,
-                      fontFamily: 'Lato',
-                      fontWeight: FontWeight.bold,
-                    ),
+
+                const SizedBox(height: 10),
+                // Kelas
+                const Text(
+                  'Kelas: 3B D4 Teknik Informatika',
+                  style: TextStyle(
+                    fontSize: 20,
+                    fontWeight: FontWeight.w500,
+                    fontFamily: 'Roboto',
+                    color: Colors.white70,
                   ),
                 ),
               ],

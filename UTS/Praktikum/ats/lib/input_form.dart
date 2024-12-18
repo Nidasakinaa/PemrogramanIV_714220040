@@ -155,6 +155,7 @@ class _MyInputFormState extends State<MyInputForm> {
                     },
                   ),
                 ),
+                const Text('Nida Sakina'),
 
                 const SizedBox(height: 20),
 
@@ -385,6 +386,14 @@ class _MyInputFormState extends State<MyInputForm> {
     return null;
   }
 
+  //validation color picker
+  String? _validateColor(Color? value) {
+    if (value == null) {
+      return 'Color harus dipilih';
+    }
+    return null;
+  }
+
   // Pick File Method
   void _pickFile() async {
     final result = await FilePicker.platform.pickFiles(
@@ -443,18 +452,18 @@ class _MyInputFormState extends State<MyInputForm> {
     _dataFile = null;
   }
 
-  // Edit Data
+  /// Edit Data
   void _editData(Map<String, dynamic> data) {
     setState(() {
       editedData = data;
       _controllerNama.text = data['name'];
       _controllerPhone.text = data['phone'];
       _controllerDate.text = data['date'];
-      _currentColor = Color(
-          int.parse(data['color'].split('(0x')[1].split(')')[0], radix: 16));
-      _dataFile = data['file'];
+      _currentColor = data['color']; 
+      _imageBytes = data['imageBytes'];
     });
   }
+
 
   // Delete Data
   void _deleteData(Map<String, dynamic> data) {
