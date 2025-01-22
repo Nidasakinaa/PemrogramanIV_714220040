@@ -1,3 +1,4 @@
+import 'package:dio_contact/view/screen/login_page.dart';
 import 'package:flutter/material.dart';
 import 'view/screen/home_page.dart';
 
@@ -17,7 +18,7 @@ class MyApp extends StatelessWidget {
         primarySwatch: Colors.indigo,
         useMaterial3: false,
       ),
-      home: const HomePage(),
+      home: const LoginPage(),
     );
   }
 }

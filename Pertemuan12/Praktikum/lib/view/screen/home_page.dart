@@ -1,7 +1,10 @@
+import 'package:dio_contact/services/auth_manager.dart';
+import 'package:dio_contact/view/screen/login_page.dart';
 import 'package:flutter/material.dart';
 import 'package:dio_contact/model/contacts_model.dart';
 import 'package:dio_contact/services/api_services.dart';
 import 'package:dio_contact/view/widget/contact_card.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -21,6 +24,23 @@ class _HomePageState extends State<HomePage> {
   bool isEdit = false;
   String idContact = '';
 
+  late SharedPreferences loginData;
+  String username = '';
+  String token = '';
+
+  @override
+    void initState() {
+      super.initState();
+      inital();
+    }
+    void inital() async {
+      loginData = await SharedPreferences.getInstance();
+      setState(() {
+        username = loginData.getString('username').toString();
+        token = loginData.getString('token').toString();
+      });
+    }
+
   @override
   void dispose() {
     _nameCtl.dispose();
@@ -33,6 +53,14 @@ class _HomePageState extends State<HomePage> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Contacts API'),
+        actions: [
+          IconButton(
+            onPressed: () {
+              _showLogoutConfirmationDialog(context);
+            },
+            icon: const Icon(Icons.logout),
+          ),
+        ],
       ),
       body: Container(
         width: double.infinity,
@@ -42,6 +70,43 @@ class _HomePageState extends State<HomePage> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
+              Card(
+                  elevation: 4,
+                  margin: const EdgeInsets.symmetric(vertical: 2.0),
+                  color: Colors.tealAccent,
+                  child: Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: Column(
+                      children: [
+                        Row(
+                          children: [
+                            const Icon(Icons.account_circle_rounded),
+                            const SizedBox(width: 8.0),
+                            Text(
+                              'Login sebagai : $username',
+                              style: const TextStyle(
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ],
+                        ),
+                        Row(
+                          children: [
+                            const Icon(Icons.key),
+                            const SizedBox(width: 8.0),
+                            Text(
+                              'Token : $token',
+                              style: const TextStyle(
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
+                  ),
+              ),
+              const SizedBox(height: 20.0),
               TextFormField(
                 controller: _nameCtl,
                 validator: _validateName,
@@ -260,6 +325,40 @@ class _HomePageState extends State<HomePage> {
                 await refreshContactList();
               },
               child: const Text('DELETE'),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  void _showLogoutConfirmationDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (BuildContext dialogContext) {
+        return AlertDialog(
+          title: const Text('Konfirmasi Logout'),
+          content: const Text('Anda yakin ingin logout?'),
+          actions: <Widget>[
+            TextButton(
+              onPressed: () {
+                Navigator.of(dialogContext).pop();
+              },
+              child: const Text('Tidak'),
+            ),
+            TextButton(
+              onPressed: () async {
+                await AuthManager.logout();
+                Navigator.pushAndRemoveUntil(
+                  // ignore: use_build_context_synchronously
+                  dialogContext,
+                  MaterialPageRoute(
+                    builder: (context) => const LoginPage(),
+                  ),
+                  (Route<dynamic> route) => false,
+                );
+              },
+              child: const Text('Ya'),
             ),
           ],
         );

@@ -1,5 +1,6 @@
 import 'package:dio/dio.dart';
 import 'package:dio_contact/model/contacts_model.dart';
+import 'package:dio_contact/model/login_model.dart';
 import 'package:flutter/material.dart';
 
 class ApiServices {
@@ -88,4 +89,26 @@ class ApiServices {
       rethrow;
     }
   }
+
+  Future<LoginResponse?> login(LoginInput login) async {
+  try {
+    final response = await Dio().post(
+      '$_baseUrl/login',
+      data: login.toJson(),
+    );
+
+    if (response.statusCode == 200) {
+      return LoginResponse.fromJson(response.data);
+    }
+    return null;
+  } on DioException catch (e) {
+    if (e.response != null && e.response!.statusCode != 200) {
+      debugPrint('Client error - the request cannot be fulfilled');
+      return LoginResponse.fromJson(e.response!.data);
+    }
+    rethrow;
+  } catch (e) {
+    rethrow;
+  }
+}
 }
